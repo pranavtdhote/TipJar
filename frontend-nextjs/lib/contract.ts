@@ -1,13 +1,16 @@
+import deployedContract from "./deployed-contract.json";
+
 export const CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
-  "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  (deployedContract && deployedContract.address ? deployedContract.address : "0x5FbDB2315678afecb367f032d93F642f64180aa3");
 
 export const READ_ONLY_RPC_URL =
   process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ||
   "https://ethereum-sepolia-rpc.publicnode.com";
 
-export const SEPOLIA_CHAIN_ID_DEC = 11155111;
-export const SEPOLIA_CHAIN_ID_HEX = "0xaa36a7";
+export const SEPOLIA_CHAIN_ID_DEC =
+  Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 11155111;
+export const SEPOLIA_CHAIN_ID_HEX = `0x${SEPOLIA_CHAIN_ID_DEC.toString(16)}`;
 
 export const MAX_MESSAGE_LENGTH = 280;
 
