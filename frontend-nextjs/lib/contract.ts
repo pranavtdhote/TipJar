@@ -4,9 +4,15 @@ export const CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
   (deployedContract && deployedContract.address ? deployedContract.address : "0x5FbDB2315678afecb367f032d93F642f64180aa3");
 
-export const READ_ONLY_RPC_URL =
-  process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL ||
-  "https://ethereum-sepolia-rpc.publicnode.com";
+export const READ_ONLY_RPC_URLS = [
+  process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL,
+  "https://rpc.ankr.com/eth_sepolia",
+  "https://ethereum-sepolia-rpc.publicnode.com",
+  "https://sepolia.drpc.org",
+  "https://1rpc.io/sepolia",
+].filter((url): url is string => Boolean(url && url.length > 0));
+
+export const READ_ONLY_RPC_URL = READ_ONLY_RPC_URLS[0];
 
 export const SEPOLIA_CHAIN_ID_DEC =
   Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 11155111;

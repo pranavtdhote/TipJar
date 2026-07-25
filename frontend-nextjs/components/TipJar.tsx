@@ -6,6 +6,7 @@ import {
   CONTRACT_ADDRESS as DEFAULT_CONTRACT_ADDRESS,
   MAX_MESSAGE_LENGTH,
   READ_ONLY_RPC_URL,
+  READ_ONLY_RPC_URLS,
   SEPOLIA_CHAIN_ID_DEC,
   SEPOLIA_CHAIN_ID_HEX,
   TIP_JAR_ABI,
@@ -78,6 +79,17 @@ export default function TipJar() {
   const localhostAliveRef = useRef<boolean | null>(null);
   const feedSectionRef = useRef<HTMLDivElement>(null);
 
+  // Auto-detect browser window.ethereum for immediate read access
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.ethereum && !browserProviderRef.current) {
+      try {
+        browserProviderRef.current = new BrowserProvider(window.ethereum);
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
   // Toast Helper
   const addToast = (type: Toast["type"], title: string, message?: string, txHash?: string) => {
     const id = `toast-${Date.now()}-${Math.random()}`;
@@ -110,7 +122,7 @@ export default function TipJar() {
     return () => window.removeEventListener("unhandledrejection", handler);
   }, []);
 
-  // Load contract address override from localStorage
+  // Load contract address override & cached tips from localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
@@ -118,6 +130,14 @@ export default function TipJar() {
         if (saved && saved.startsWith("0x") && saved.length === 42) {
           setContractAddress(saved);
           setAddressInput(saved);
+        }
+        const cachedFeed = localStorage.getItem("tipjar_cached_tips");
+        if (cachedFeed) {
+          const parsed = JSON.parse(cachedFeed);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setTips(parsed);
+            setIsLoadingFeed(false);
+          }
         }
       } catch {
         // ignore
@@ -154,10 +174,10 @@ export default function TipJar() {
     return account.toLowerCase() === contractOwner.toLowerCase();
   }, [account, contractOwner]);
 
-  // Read-only contract fetcher with wallet provider prioritization
+  // Read-only contract fetcher with multi-RPC failover & local cache
   const fetchContractData = useCallback(
     async (isInitial = false) => {
-      if (isInitial) setIsLoadingFeed(true);
+      if (isInitial && tips.length === 0) setIsLoadingFeed(true);
 
       const activeAddress = contractAddress || DEFAULT_CONTRACT_ADDRESS;
       const readProviders: (JsonRpcProvider | BrowserProvider)[] = [];
@@ -176,7 +196,10 @@ export default function TipJar() {
         }
       }
 
-      readProviders.push(new JsonRpcProvider(READ_ONLY_RPC_URL));
+      // Add all configured failover RPC URLs
+      for (const rpcUrl of READ_ONLY_RPC_URLS) {
+        readProviders.push(new JsonRpcProvider(rpcUrl));
+      }
 
       for (const provider of readProviders) {
         try {
@@ -224,17 +247,26 @@ export default function TipJar() {
               timestamp: Number(t[3] ?? t.timestamp),
             }));
 
+            // Save to localStorage for instant hydration on reloads
+            try {
+              if (parsedTips.length > 0 && typeof window !== "undefined") {
+                localStorage.setItem("tipjar_cached_tips", JSON.stringify(parsedTips));
+              }
+            } catch {
+              // ignore
+            }
+
             setTips(parsedTips);
             setIsLoadingFeed(false);
             return;
           }
         } catch {
-          // try next
+          // try next RPC provider
         }
       }
       setIsLoadingFeed(false);
     },
-    [contractAddress]
+    [contractAddress, tips.length]
   );
 
   // Real-time background polling every 3 seconds
