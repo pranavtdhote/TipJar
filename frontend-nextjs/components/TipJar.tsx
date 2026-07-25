@@ -98,6 +98,7 @@ export default function TipJar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "highest">("newest");
   const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const browserProviderRef = useRef<BrowserProvider | null>(null);
   const localhostAliveRef = useRef<boolean | null>(null);
@@ -590,53 +591,77 @@ export default function TipJar() {
       )}
 
       {/* Top Navbar */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-[#0a1612]/70 backdrop-blur-xl border-b border-[#b4d177]/15 shadow-[0_0_20px_rgba(180,209,119,0.05)]">
-        <div className="flex justify-between items-center px-6 md:px-16 py-4 w-full max-w-[1440px] mx-auto">
-          <div className="font-label-mono text-2xl font-black tracking-tighter text-[#d8e5df] flex items-center gap-2">
+      <header className="fixed top-0 left-0 w-full z-50 bg-[#0a1612]/80 backdrop-blur-xl border-b border-[#b4d177]/15 shadow-[0_0_20px_rgba(180,209,119,0.05)]">
+        <div className="flex justify-between items-center px-4 sm:px-8 md:px-16 py-4 w-full max-w-[1440px] mx-auto">
+          <div className="font-label-mono text-xl sm:text-2xl font-black tracking-tighter text-[#d8e5df] flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-[#b4d177] shadow-[0_0_10px_#ddfb9c]" />
             TipJar
           </div>
-          <nav className="hidden md:flex items-center gap-10">
+          
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-8 lg:gap-10">
             <a className="text-[#ffb783] border-b-2 border-[#ffb783] pb-1 font-medium text-sm" href="#features">Features</a>
-            <a className="text-[#a7c36a] hover:text-[#ffb783] transition-colors font-medium text-sm" onClick={scrollToFeed} style={{ cursor: "pointer" }}>Supporters</a>
+            <a className="text-[#a7c36a] hover:text-[#ffb783] transition-colors font-medium text-sm cursor-pointer" onClick={scrollToFeed}>Supporters</a>
             <a className="text-[#a7c36a] hover:text-[#ffb783] transition-colors font-medium text-sm" href="#protocol">Protocol</a>
             <a className="text-[#a7c36a] hover:text-[#ffb783] transition-colors font-medium text-sm" href="https://sepolia.etherscan.io" target="_blank" rel="noreferrer">Audits</a>
           </nav>
-          <button
-            className="btn-metamask"
-            onClick={connectWallet}
-            disabled={connecting || !!account}
-          >
-            {account ? short(account) : connecting ? "Connecting…" : "Connect Wallet"}
-          </button>
+
+          <div className="flex items-center gap-3">
+            <button
+              className="btn-metamask text-xs sm:text-sm py-2 px-4 sm:py-3 sm:px-6"
+              onClick={connectWallet}
+              disabled={connecting || !!account}
+            >
+              {account ? short(account) : connecting ? "Connecting…" : "Connect Wallet"}
+            </button>
+
+            {/* Mobile Hamburger Toggle */}
+            <button
+              className="md:hidden text-[#b4d177] p-2 focus:outline-none"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Navigation Menu"
+            >
+              <span className="material-symbols-outlined">{mobileMenuOpen ? "close" : "menu"}</span>
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Dropdown Nav Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#072E2A] border-b border-[#b4d177]/20 px-6 py-4 flex flex-col gap-4 animate-fade-in-up">
+            <a className="text-[#ffb783] font-medium text-sm py-1" href="#features" onClick={() => setMobileMenuOpen(false)}>Features</a>
+            <a className="text-[#a7c36a] font-medium text-sm py-1 cursor-pointer" onClick={() => { scrollToFeed(); setMobileMenuOpen(false); }}>Supporters</a>
+            <a className="text-[#a7c36a] font-medium text-sm py-1" href="#protocol" onClick={() => setMobileMenuOpen(false)}>Protocol</a>
+            <a className="text-[#a7c36a] font-medium text-sm py-1" href="https://sepolia.etherscan.io" target="_blank" rel="noreferrer" onClick={() => setMobileMenuOpen(false)}>Audits ↗</a>
+          </div>
+        )}
       </header>
 
       <main>
         {/* Hero Section */}
-        <section className="min-h-screen pt-32 px-6 md:px-16 flex flex-col md:flex-row items-center max-w-[1440px] mx-auto gap-12">
-          <div className="flex-1 animate-fade-in-up">
-            <span className="font-label-mono text-xs text-[#b4d177] mb-6 block uppercase tracking-[0.2em]">
+        <section className="min-h-[85vh] pt-24 sm:pt-32 px-4 sm:px-8 md:px-16 flex flex-col lg:flex-row items-center max-w-[1440px] mx-auto gap-8 lg:gap-12">
+          <div className="flex-1 animate-fade-in-up text-center lg:text-left">
+            <span className="font-label-mono text-[10px] sm:text-xs text-[#b4d177] mb-4 sm:mb-6 block uppercase tracking-[0.2em]">
               Web3 Creator Economy
             </span>
-            <h1 className="font-extrabold text-4xl md:text-6xl text-[#d8e5df] mb-8 leading-[1.1] tracking-tight">
+            <h1 className="font-extrabold text-3xl sm:text-5xl lg:text-6xl text-[#d8e5df] mb-6 sm:mb-8 leading-[1.1] tracking-tight">
               Support Creators.<br />
               <span className="text-[#ffb783]">Own Every Contribution.</span>
             </h1>
-            <p className="text-lg text-[#9eb3aa] max-w-xl mb-12 leading-relaxed">
+            <p className="text-base sm:text-lg text-[#9eb3aa] max-w-xl mx-auto lg:mx-0 mb-8 sm:mb-12 leading-relaxed">
               Transparent Ethereum recording for every tip. No middleman. No hidden fees.
               Just direct support between fans and the creators they love.
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
               <button
-                className="btn-metamask text-lg"
+                className="btn-metamask text-base sm:text-lg"
                 onClick={connectWallet}
                 disabled={connecting || !!account}
               >
                 {account ? "Wallet Connected ✓" : "Connect Wallet 🦊"}
               </button>
               <button
-                className="btn-outline-lime text-lg"
+                className="btn-outline-lime text-base sm:text-lg"
                 onClick={scrollToFeed}
               >
                 View Live Supporters ↗
@@ -645,25 +670,25 @@ export default function TipJar() {
           </div>
 
           {/* 3D Interactive Three.js Ethereum Diamond */}
-          <div className="flex-1 w-full h-[500px] md:h-[600px] relative">
+          <div className="flex-1 w-full h-[300px] sm:h-[420px] md:h-[520px] lg:h-[600px] relative">
             <EthDiamondCanvas />
           </div>
         </section>
 
         {/* Contract Config Bar */}
-        <section className="px-6 md:px-16 max-w-[1440px] mx-auto mb-8">
-          <div className="glass-card p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <section className="px-4 sm:px-8 md:px-16 max-w-[1440px] mx-auto mb-8">
+          <div className="glass-card p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="font-label-mono text-xs text-[#a7c36a]">SMART CONTRACT:</span>
+              <span className="font-label-mono text-[10px] sm:text-xs text-[#a7c36a]">SMART CONTRACT:</span>
               <button
-                className="font-label-mono text-xs text-[#b4d177] hover:underline"
+                className="font-label-mono text-[10px] sm:text-xs text-[#b4d177] hover:underline break-all"
                 onClick={() => copyToClipboard(contractAddress, "Contract address")}
               >
                 {short(contractAddress)} 📋
               </button>
             </div>
             <button
-              className="btn-outline-lime text-xs py-2 px-4"
+              className="btn-outline-lime text-xs py-2 px-4 w-full sm:w-auto"
               onClick={() => setEditingAddress(!editingAddress)}
             >
               {editingAddress ? "Close Edit" : "Change Contract Address"}
@@ -671,11 +696,11 @@ export default function TipJar() {
           </div>
 
           {editingAddress && (
-            <div className="glass-card p-6 mt-4 animate-fade-in-up">
+            <div className="glass-card p-4 sm:p-6 mt-4 animate-fade-in-up">
               <label className="font-label-mono text-xs text-[#b4d177] block mb-2">TARGET DEPLOYED SMART CONTRACT</label>
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <input
-                  className="cinematic-input flex-1"
+                  className="cinematic-input flex-1 text-xs sm:text-sm"
                   type="text"
                   value={addressInput}
                   onChange={(e) => setAddressInput(e.target.value)}
@@ -694,19 +719,19 @@ export default function TipJar() {
 
         {/* Creator Admin Panel (if Owner) */}
         {isOwner && (
-          <section className="px-6 md:px-16 max-w-[1440px] mx-auto mb-8">
-            <div className="glass-card p-6 border-l-4 border-l-[#ffb783] bg-[#072E2A]/70">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <section className="px-4 sm:px-8 md:px-16 max-w-[1440px] mx-auto mb-8">
+            <div className="glass-card p-4 sm:p-6 border-l-4 border-l-[#ffb783] bg-[#072E2A]/70">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <div className="font-label-mono text-xs text-[#ffb783] uppercase tracking-widest">
                     👑 Creator Vault Admin
                   </div>
-                  <div className="font-label-mono text-xl text-[#d8e5df] mt-1">
+                  <div className="font-label-mono text-lg sm:text-xl text-[#d8e5df] mt-1">
                     Contract Vault Balance: <span className="text-[#b4d177]">{contractBalance} ETH</span>
                   </div>
                 </div>
                 <button
-                  className="btn-metamask"
+                  className="btn-metamask text-xs sm:text-sm w-full sm:w-auto"
                   onClick={withdrawFunds}
                   disabled={withdrawing || Number(contractBalance) <= 0}
                 >
@@ -718,21 +743,21 @@ export default function TipJar() {
         )}
 
         {/* Wallet & Send Tip Section */}
-        <section className="px-6 md:px-16 max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 py-8">
+        <section className="px-4 sm:px-8 md:px-16 max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 py-8">
           {/* Glassmorphic Wallet Card */}
-          <div className="glass-card p-8 relative overflow-hidden animate-fade-in-up">
-            <div className="absolute top-0 right-0 p-4 font-label-mono text-[10px] text-[#b4d177]/60">
+          <div className="glass-card p-6 sm:p-8 relative overflow-hidden animate-fade-in-up">
+            <div className="sm:absolute top-0 right-0 p-2 sm:p-4 font-label-mono text-[10px] text-[#b4d177]/60 mb-4 sm:mb-0">
               NETWORK: {chainId === SEPOLIA_CHAIN_ID_DEC ? "ETHEREUM SEPOLIA" : `CHAIN ID ${chainId || "31337"}`}
             </div>
 
-            <div className="mb-8">
+            <div className="mb-6 sm:mb-8">
               <h3 className="font-label-mono text-[10px] text-[#b4d177] mb-1 uppercase tracking-widest">Connected Wallet</h3>
-              <div className="font-label-mono text-2xl md:text-3xl text-[#d8e5df] truncate flex items-center gap-2">
-                <span>{account ? (ensName ? `${ensName} (${short(account)})` : short(account)) : "Not Connected"}</span>
+              <div className="font-label-mono text-xl sm:text-2xl md:text-3xl text-[#d8e5df] truncate flex items-center gap-2">
+                <span className="truncate">{account ? (ensName ? `${ensName} (${short(account)})` : short(account)) : "Not Connected"}</span>
                 {account && (
                   <button
                     onClick={() => copyToClipboard(account, "Wallet address")}
-                    className="text-xs text-[#b4d177] hover:opacity-80"
+                    className="text-xs text-[#b4d177] hover:opacity-80 flex-shrink-0"
                     title="Copy Address"
                   >
                     📋
@@ -741,28 +766,28 @@ export default function TipJar() {
               </div>
             </div>
 
-            <div className="flex gap-12 mb-8">
+            <div className="flex flex-row gap-6 sm:gap-12 mb-8">
               <div>
                 <div className="font-label-mono text-[10px] text-[#9eb3aa] mb-1">YOUR BALANCE</div>
-                <div className="font-label-mono text-xl text-[#b4d177]">{userBalance} ETH</div>
+                <div className="font-label-mono text-lg sm:text-xl text-[#b4d177]">{userBalance} ETH</div>
               </div>
-              <div className="border-l border-[#b4d177]/15 pl-12">
+              <div className="border-l border-[#b4d177]/15 pl-6 sm:pl-12">
                 <div className="font-label-mono text-[10px] text-[#9eb3aa] mb-1">TOTAL TIPPED (ALL)</div>
-                <div className="font-label-mono text-xl text-[#d8e5df]">{totalVolumeEth} ETH</div>
+                <div className="font-label-mono text-lg sm:text-xl text-[#d8e5df]">{totalVolumeEth} ETH</div>
               </div>
             </div>
 
-            <div className="border-t border-[#b4d177]/15 pt-6 flex items-center justify-between">
-              <span className="text-sm text-[#9eb3aa]">
+            <div className="border-t border-[#b4d177]/15 pt-6 flex items-center justify-between gap-4">
+              <span className="text-xs sm:text-sm text-[#9eb3aa]">
                 {account ? "Identity verified via MetaMask / ENS" : "Click Connect Wallet to start tipping"}
               </span>
-              <div className={`w-3 h-3 rounded-full ${account ? "bg-[#b4d177] shadow-[0_0_10px_#ddfb9c]" : "bg-gray-500"}`} />
+              <div className={`w-3 h-3 rounded-full flex-shrink-0 ${account ? "bg-[#b4d177] shadow-[0_0_10px_#ddfb9c]" : "bg-gray-500"}`} />
             </div>
 
             {!isSupportedNetwork && account && (
-              <div className="mt-4 pt-4 border-t border-[#b4d177]/15 flex justify-between items-center">
+              <div className="mt-4 pt-4 border-t border-[#b4d177]/15 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                 <span className="text-xs text-[#ffb4ab]">Wrong Network</span>
-                <button className="btn-outline-lime text-xs py-1 px-3" onClick={switchToSepolia}>
+                <button className="btn-outline-lime text-xs py-1 px-3 w-full sm:w-auto" onClick={switchToSepolia}>
                   Switch to Sepolia Network
                 </button>
               </div>
@@ -770,13 +795,13 @@ export default function TipJar() {
           </div>
 
           {/* Send Tip Section */}
-          <div className="glass-card p-8 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+          <div className="glass-card p-6 sm:p-8 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
             <h3 className="font-label-mono text-[10px] text-[#b4d177] mb-6 uppercase tracking-widest">Send a Tip</h3>
 
             <div className="space-y-4 mb-6">
               <div className="relative">
                 <input
-                  className="cinematic-input text-2xl font-bold pr-16"
+                  className="cinematic-input text-xl sm:text-2xl font-bold pr-16"
                   placeholder="0.00"
                   type="number"
                   min="0"
@@ -790,12 +815,12 @@ export default function TipJar() {
               </div>
 
               {/* Preset Chips */}
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {["0.001", "0.005", "0.01", "0.05"].map((preset) => (
                   <button
                     key={preset}
                     type="button"
-                    className={`preset-chip flex-1 ${amount === preset ? "active" : ""}`}
+                    className={`preset-chip w-full ${amount === preset ? "active" : ""}`}
                     onClick={() => setAmount(preset)}
                   >
                     {preset} ETH
@@ -805,7 +830,7 @@ export default function TipJar() {
 
               <div className="relative">
                 <textarea
-                  className="cinematic-textarea h-24"
+                  className="cinematic-textarea h-24 text-xs sm:text-sm"
                   maxLength={MAX_MESSAGE_LENGTH}
                   placeholder="Message (optional) — Recorded permanently on-chain"
                   value={message}
@@ -818,7 +843,7 @@ export default function TipJar() {
             </div>
 
             <button
-              className="btn-metamask w-full py-4 text-sm"
+              className="btn-metamask w-full py-4 text-xs sm:text-sm"
               onClick={sendTip}
               disabled={sending || !account || !isSupportedNetwork}
             >
@@ -833,7 +858,7 @@ export default function TipJar() {
             </button>
 
             {/* Compact Transaction Timeline */}
-            <div className="mt-6 flex items-center gap-6">
+            <div className="mt-6 flex flex-wrap items-center gap-4 sm:gap-6">
               <div className={`flex items-center gap-2 ${status.type === "pending" ? "animate-pulse" : ""}`}>
                 <div className={`w-2 h-2 rounded-full ${sending ? "bg-[#f6851b]" : "bg-[#b4d177]"}`} />
                 <div className="font-label-mono text-[10px] text-[#9eb3aa]">
@@ -850,7 +875,7 @@ export default function TipJar() {
               <div className={`mt-4 p-3 rounded text-xs font-label-mono ${status.type === "error" ? "bg-[#ffb4ab]/10 text-[#ffb4ab] border border-[#ffb4ab]/30" : status.type === "success" ? "bg-[#b4d177]/10 text-[#b4d177] border border-[#b4d177]/30" : "bg-[#f6851b]/10 text-[#ffb783] border border-[#f6851b]/30"}`}>
                 <div>{status.text}</div>
                 {status.txHash && (
-                  <div className="mt-1 text-[10px] opacity-80 word-break-all">
+                  <div className="mt-1 text-[10px] opacity-80 break-all">
                     Tx: {status.txHash}
                   </div>
                 )}
@@ -860,19 +885,19 @@ export default function TipJar() {
         </section>
 
         {/* Live Supporter Feed */}
-        <section ref={feedSectionRef} className="py-20 px-6 md:px-16 bg-[#06100d]/50 relative overflow-hidden">
+        <section ref={feedSectionRef} className="py-16 sm:py-20 px-4 sm:px-8 md:px-16 bg-[#06100d]/50 relative overflow-hidden">
           <div className="max-w-[1440px] mx-auto relative z-10">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 sm:mb-12 gap-4 sm:gap-6">
               <div>
-                <h2 className="font-extrabold text-3xl md:text-5xl text-[#d8e5df] mb-4">
+                <h2 className="font-extrabold text-2xl sm:text-4xl md:text-5xl text-[#d8e5df] mb-2 sm:mb-4">
                   Live Supporter Feed
                 </h2>
-                <p className="text-lg text-[#9eb3aa]">
+                <p className="text-sm sm:text-lg text-[#9eb3aa]">
                   Immutable records of appreciation from across the globe.
                 </p>
               </div>
 
-              <div className="font-label-mono text-xs text-[#b4d177] border border-[#b4d177]/20 px-6 py-3 flex items-center gap-2">
+              <div className="font-label-mono text-xs text-[#b4d177] border border-[#b4d177]/20 px-4 py-2 sm:px-6 sm:py-3 flex items-center gap-2">
                 <span className="animate-pulse w-2 h-2 rounded-full bg-[#b4d177]" />
                 {tips.length} ACTIVE CONTRIBUTORS
               </div>
@@ -880,7 +905,7 @@ export default function TipJar() {
 
             {/* Filter & Search Bar */}
             {tips.length > 0 && (
-              <div className="flex flex-col md:flex-row gap-4 mb-8">
+              <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <input
                   className="cinematic-input text-xs flex-1"
                   type="text"
@@ -889,7 +914,7 @@ export default function TipJar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <select
-                  className="cinematic-input text-xs w-full md:w-48 cursor-pointer"
+                  className="cinematic-input text-xs w-full sm:w-48 cursor-pointer"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as "newest" | "highest")}
                 >
@@ -908,24 +933,24 @@ export default function TipJar() {
                   input?.focus();
                 }} />
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {filteredTips.map((t) => {
                     const isTopTip = Number(t.amountEth) >= 0.05;
                     return (
                       <div
                         key={t.key}
-                        className={`glass-card p-6 hover:scale-[1.02] transition-all ${isTopTip ? "border-l-4 border-l-[#ffb783]" : ""}`}
+                        className={`glass-card p-4 sm:p-6 hover:scale-[1.02] transition-all ${isTopTip ? "border-l-4 border-l-[#ffb783]" : ""}`}
                       >
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="flex gap-3 items-center">
-                            <div className="w-10 h-10 bg-[#b4d177]/10 flex items-center justify-center rounded">
-                              <span className="material-symbols-outlined text-[#b4d177]">
+                        <div className="flex justify-between items-start mb-4 gap-2">
+                          <div className="flex gap-3 items-center min-w-0">
+                            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[#b4d177]/10 flex items-center justify-center rounded flex-shrink-0">
+                              <span className="material-symbols-outlined text-[#b4d177] text-lg sm:text-xl">
                                 {isTopTip ? "verified" : "person"}
                               </span>
                             </div>
-                            <div>
+                            <div className="min-w-0">
                               <button
-                                className="font-label-mono text-xs text-[#d8e5df] hover:underline block text-left"
+                                className="font-label-mono text-xs text-[#d8e5df] hover:underline block text-left truncate max-w-[140px] sm:max-w-[180px]"
                                 onClick={() => copyToClipboard(t.sender, "Supporter address")}
                               >
                                 {short(t.sender)} 📋
@@ -935,13 +960,13 @@ export default function TipJar() {
                               </div>
                             </div>
                           </div>
-                          <div className="font-label-mono text-xl font-bold text-[#b4d177]">
+                          <div className="font-label-mono text-lg sm:text-xl font-bold text-[#b4d177] flex-shrink-0">
                             {t.amountEth} ETH
                           </div>
                         </div>
 
                         {t.message ? (
-                          <p className="text-sm text-[#9eb3aa] leading-relaxed italic">
+                          <p className="text-xs sm:text-sm text-[#9eb3aa] leading-relaxed italic break-words">
                             &ldquo;{t.message}&rdquo;
                           </p>
                         ) : (

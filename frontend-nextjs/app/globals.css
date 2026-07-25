@@ -377,6 +377,35 @@ html, body {
 }
 
 /* Mobile Responsive Adjustments */
-@media (max-width: 768px) {
-  .toast-container { right: 12px; left: 12px; width: auto; max-width: none; }
+@media (max-width: 640px) {
+  html, body {
+    font-size: 14px;
+  }
+  .btn-metamask, .btn-outline-lime {
+    padding: 12px 20px;
+    font-size: 12px;
+    width: 100%;
+  }
+  .cinematic-input, .cinematic-textarea {
+    font-size: 16px !important; /* Prevent iOS Safari auto-zoom */
+    padding: 12px 14px;
+  }
+  .toast-container {
+    top: 70px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
+  }
+  .modal-card {
+    padding: 24px 16px;
+    max-width: 95vw;
+  }
 }
+
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 16px !important;
+  }
+}
+
