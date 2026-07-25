@@ -154,13 +154,18 @@ export default function TipJar() {
     return account.toLowerCase() === contractOwner.toLowerCase();
   }, [account, contractOwner]);
 
-  // Read-only contract fetcher
+  // Read-only contract fetcher with wallet provider prioritization
   const fetchContractData = useCallback(
     async (isInitial = false) => {
       if (isInitial) setIsLoadingFeed(true);
 
       const activeAddress = contractAddress || DEFAULT_CONTRACT_ADDRESS;
-      const readProviders: JsonRpcProvider[] = [];
+      const readProviders: (JsonRpcProvider | BrowserProvider)[] = [];
+
+      // Prioritize connected wallet provider (MetaMask) for instant post-transaction state
+      if (browserProviderRef.current) {
+        readProviders.push(browserProviderRef.current);
+      }
 
       if (activeAddress.toLowerCase().startsWith("0x5fb")) {
         if (localhostAliveRef.current === null) {
@@ -232,12 +237,12 @@ export default function TipJar() {
     [contractAddress]
   );
 
-  // Background polling every 5 seconds
+  // Real-time background polling every 3 seconds
   useEffect(() => {
     fetchContractData(true);
     const interval = setInterval(() => {
       fetchContractData(false).catch(() => { });
-    }, 5000);
+    }, 3000);
     return () => clearInterval(interval);
   }, [fetchContractData]);
 
@@ -378,6 +383,27 @@ export default function TipJar() {
         setLastTxHash(tx.hash);
         setLastConfirmedAmount(`${trimmedAmount} ETH`);
         setShowSuccessModal(true);
+
+        // Instant Optimistic Feed Update
+        const optimisticTip: Tip = {
+          key: `tip-opt-${Date.now()}-${tx.hash}`,
+          sender: account,
+          amountEth: trimmedAmount,
+          message: trimmedMessage,
+          timestamp: Math.floor(Date.now() / 1000),
+        };
+
+        setTips((prev) => {
+          const exists = prev.some(
+            (t) =>
+              t.sender.toLowerCase() === account.toLowerCase() &&
+              t.amountEth === trimmedAmount &&
+              t.message === trimmedMessage
+          );
+          if (exists) return prev;
+          return [optimisticTip, ...prev];
+        });
+
         setAmount("");
         setMessage("");
 
@@ -389,7 +415,10 @@ export default function TipJar() {
           // ignore
         }
 
-        await fetchContractData(false);
+        fetchContractData(false).catch(() => {});
+        setTimeout(() => {
+          fetchContractData(false).catch(() => {});
+        }, 2500);
       } else {
         setStatus({ text: "Transaction failed on-chain.", type: "error" });
         addToast("error", "Transaction Failed", "The transaction reverted on-chain.");
