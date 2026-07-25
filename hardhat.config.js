@@ -20,7 +20,7 @@ module.exports = {
       url: "http://127.0.0.1:8545",
     },
     sepolia: {
-      url: QUICKNODE_RPC || QUICKNODE_SEPOLIA_URL || SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com",
+      url: QUICKNODE_RPC || QUICKNODE_SEPOLIA_URL || SEPOLIA_RPC_URL || "https://rpc.ankr.com/eth_sepolia",
       accounts: isValidPrivateKey(PRIVATE_KEY) ? [PRIVATE_KEY] : [],
       chainId: 11155111,
     },
