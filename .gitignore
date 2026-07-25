@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+frontend-nextjs/node_modules/
+
+# Next.js build & cache
+.next/
+frontend-nextjs/.next/
+
+# Hardhat build artifacts
+cache/
+artifacts/
+typechain/
+typechain-types/
+coverage/
+coverage.json
+
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+frontend-nextjs/.env
+frontend-nextjs/.env.local
+
+# Temp media & OS files
+.tempmediaStorage/
+.DS_Store
+Thumbs.db
