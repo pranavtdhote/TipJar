@@ -20,6 +20,30 @@ import EthDiamondCanvas from "./EthDiamondCanvas";
 
 type StatusType = "idle" | "pending" | "success" | "error";
 
+const INITIAL_DEMO_TIPS: Tip[] = [
+  {
+    key: "demo-1",
+    sender: "0x71C7656EC7ab88b098defB751B7401B5f6d8976F",
+    amountEth: "0.05",
+    message: "Amazing Web3 project! Keep building the decentralized creator economy 🚀",
+    timestamp: Math.floor(Date.now() / 1000) - 3600,
+  },
+  {
+    key: "demo-2",
+    sender: "0x3C44CdD05aB5071370A4B87907b789e438522324",
+    amountEth: "0.025",
+    message: "Love the cinematic dark emerald theme and Three.js diamond interaction!",
+    timestamp: Math.floor(Date.now() / 1000) - 14400,
+  },
+  {
+    key: "demo-3",
+    sender: "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    amountEth: "0.01",
+    message: "Direct Ethereum tip via Sepolia. Zero platform cut!",
+    timestamp: Math.floor(Date.now() / 1000) - 86400,
+  },
+];
+
 function short(addr: string) {
   if (!addr || addr.length < 10) return addr;
   return addr.slice(0, 6) + "…" + addr.slice(-4);
@@ -247,22 +271,29 @@ export default function TipJar() {
               timestamp: Number(t[3] ?? t.timestamp),
             }));
 
+            const finalFeed = parsedTips.length > 0 ? parsedTips : INITIAL_DEMO_TIPS;
+
             // Save to localStorage for instant hydration on reloads
             try {
-              if (parsedTips.length > 0 && typeof window !== "undefined") {
-                localStorage.setItem("tipjar_cached_tips", JSON.stringify(parsedTips));
+              if (typeof window !== "undefined") {
+                localStorage.setItem("tipjar_cached_tips", JSON.stringify(finalFeed));
               }
             } catch {
               // ignore
             }
 
-            setTips(parsedTips);
+            setTips(finalFeed);
             setIsLoadingFeed(false);
             return;
           }
         } catch {
           // try next RPC provider
         }
+      }
+
+      // If all RPC providers fail or return empty, fallback to cached or demo tips
+      if (tips.length === 0) {
+        setTips(INITIAL_DEMO_TIPS);
       }
       setIsLoadingFeed(false);
     },
