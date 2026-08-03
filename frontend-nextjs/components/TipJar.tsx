@@ -241,22 +241,24 @@ export default function TipJar() {
 
           let rawTips: any[] = [];
           try {
-            rawTips = await contract.getAllTips();
+            // PRIMARY: Decode supporter wall from immutable event logs (NewTip)
+            const events = await contract.queryFilter(
+              contract.filters.NewTip(),
+              0,
+              "latest"
+            );
+            rawTips = events.map((ev: any) => ev.args);
           } catch {
+            // FALLBACK: Read from contract storage if event query is unsupported
             try {
-              const count: bigint = await contract.getTipsCount();
-              rawTips = [];
-              for (let i = BigInt(0); i < count; i++) {
-                rawTips.push(await contract.tips(i));
-              }
+              rawTips = await contract.getAllTips();
             } catch {
               try {
-                const events = await contract.queryFilter(
-                  contract.filters.NewTip(),
-                  -10000,
-                  "latest"
-                );
-                rawTips = events.map((ev: any) => ev.args);
+                const count: bigint = await contract.getTipsCount();
+                rawTips = [];
+                for (let i = BigInt(0); i < count; i++) {
+                  rawTips.push(await contract.tips(i));
+                }
               } catch {
                 rawTips = [];
               }

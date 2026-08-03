@@ -8,6 +8,9 @@ contract TipJar {
     address public immutable owner;
     uint256 public constant MAX_MESSAGE_LENGTH = 280;
 
+    /// @dev Reentrancy guard state variable
+    uint256 private _locked = 1;
+
     struct Tip {
         address sender;
         uint256 amount;
@@ -30,10 +33,19 @@ contract TipJar {
     error NotOwner();
     error NothingToWithdraw();
     error WithdrawalFailed();
+    error ReentrantCall();
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner();
         _;
+    }
+
+    /// @dev Prevents reentrancy attacks on functions with external calls
+    modifier nonReentrant() {
+        if (_locked == 2) revert ReentrantCall();
+        _locked = 2;
+        _;
+        _locked = 1;
     }
 
     constructor() {
@@ -71,14 +83,19 @@ contract TipJar {
     }
 
     /// @notice Withdraw the full accumulated balance to the contract owner.
-    function withdraw() external onlyOwner {
+    /// @dev Uses checks-effects-interactions pattern with nonReentrant guard.
+    ///      State (balance snapshot) is captured and the event is emitted
+    ///      BEFORE the external call to prevent reentrancy exploits.
+    function withdraw() external onlyOwner nonReentrant {
         uint256 balance = address(this).balance;
         if (balance == 0) revert NothingToWithdraw();
 
+        // Effects: emit event BEFORE the external interaction
+        emit Withdrawal(owner, balance);
+
+        // Interaction: external call AFTER all state changes
         (bool success, ) = payable(owner).call{value: balance}("");
         if (!success) revert WithdrawalFailed();
-
-        emit Withdrawal(owner, balance);
     }
 
     /// @dev Revert direct plain ETH transfers so all tips go through tip()
